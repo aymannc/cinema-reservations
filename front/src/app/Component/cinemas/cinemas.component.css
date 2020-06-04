@@ -1,0 +1,12 @@
+nz-select {
+  width: 100%;
+}
+
+.list-item {
+  cursor: pointer;
+  padding: 12px;
+}
+.selected-item{
+  background-color: #40A9FF;
+  color: white;
+}

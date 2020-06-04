@@ -1,0 +1,13 @@
+<nz-input-number style="float:right;" [nzMin]="0" [nzMax]="10" [(ngModel)]="selectedIndex"></nz-input-number>
+<nz-tabset style="height:220px;" [nzTabPosition]="'left'" [(nzSelectedIndex)]="selectedIndex"
+           (nzSelectChange)="log([$event])">
+  <nz-tab
+    *ngFor="let tab of tabs"
+    [nzTitle]="tab.name"
+    (nzSelect)="log(['select', tab])"
+    (nzClick)="log(['click', tab])"
+    (nzDeselect)="log(['deselect', tab])"
+  >
+    {{ tab.name }}
+  </nz-tab>
+</nz-tabset>

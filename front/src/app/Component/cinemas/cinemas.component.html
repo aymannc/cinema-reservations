@@ -1,0 +1,109 @@
+<nz-spin [nzSpinning]="isLoading">
+  <nz-row nzJustify="end" nzAlign="middle">
+    <nz-col nzSpan="1">
+      <label>City</label>
+    </nz-col>
+    <nz-col nzSpan="4">
+      <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select a city" [(ngModel)]="selectedCity"
+                 [nzAllowClear]="false"
+                 (ngModelChange)="onSelectCity()">
+        <nz-option *ngFor="let city of citiesOptions" [nzLabel]="city.city" [nzValue]="city.cinemas"></nz-option>
+      </nz-select>
+    </nz-col>
+    <nz-col nzOffset="1">
+      <label style="margin-right: 10px">Cinema</label>
+    </nz-col>
+    <nz-col nzSpan="4">
+      <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select a cinema" [(ngModel)]="selectedCinema"
+                 [nzAllowClear]="false"
+                 [disabled]="!cinemas"
+                 (ngModelChange)="onSelectCinema()">
+        <nz-option *ngFor="let cinema of cinemas" [nzLabel]="cinema.name" [nzValue]="cinema"></nz-option>
+      </nz-select>
+    </nz-col>
+  </nz-row>
+  <nz-spin [nzSpinning]="isLoadingSalles" *ngIf="listSalles">
+    <div style="background: #ECECEC;padding:30px; margin-top: 10px">
+      <div nz-row [nzGutter]="[8,16]">
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="12" nzXl="8" *ngFor="let salle of listSalles;let indx=index">
+          <nz-card style="width: 100%;" *ngIf="salle.projections"
+                   [nzTitle]="salle.name + ': '+ salle.projections[0]?.film.titre"
+                   [nzExtra]="extraTemplate">
+            <nz-card-tab>
+              <nz-tabset nzSize="large" [(nzSelectedIndex)]="cardIndexes[indx]">
+                <nz-tab nzTitle="Movie"></nz-tab>
+                <nz-tab nzTitle="Projections"></nz-tab>
+              </nz-tabset>
+            </nz-card-tab>
+            <nz-row *ngIf="cardIndexes[indx]===0" nzAlign="middle" nzJustify="space-around">
+              <nz-col nzSpan="10">
+                <img [src]="cinemaService.baseUrl +'image/'+salle.projections[0].film.id"
+                     alt="poster" width="150px">
+              </nz-col>
+              <nz-col nzSpan="12">
+                <nz-list nzBordered>
+                  <nz-list-item>
+                    {{salle.projections[0].film.titre}}
+                  </nz-list-item>
+                  <nz-list-item>
+                    {{salle.projections[0].film.description | shortDescription:50}}
+                  </nz-list-item>
+                  <nz-list-item>
+                    {{salle.projections[0].film.dure}}min<i nz-icon nzType="clock-circle" nzTheme="outline"></i>
+                  </nz-list-item>
+                  <nz-list-item>
+                    {{salle.projections[0].film.rating}}
+                    <i nz-icon nzType="star" nzTheme="outline" [nzTheme]="'twotone'" [nzTwotoneColor]="'#E2B616'"></i>
+                  </nz-list-item>
+
+                </nz-list>
+              </nz-col>
+            </nz-row>
+            <nz-row *ngIf="cardIndexes[indx]===1" [nzGutter]="[8,16]" nzAlign="middle">
+              <nz-col nzFlex="2">
+                <nz-spin [nzSpinning]="isLoadingTickets">
+                  <nz-row nzAlign="middle" *ngIf="showTickets(salle)" nzJustify="center" [nzGutter]="[8,8]"
+                          style="margin-top: 20px;">
+                    <nz-col *ngFor="let ticket of this.selectedProjection?.tickets;let i = index">
+                      <button nz-button nzType="primary" nzShape="circle" [disabled]="ticket?.reserve"
+                              [style]="{backgroundColor: ticket.selected?'#28a745':'' }"
+                              (click)="addOrRemoveTicketCart(ticket)">{{i + 1}}</button>
+                    </nz-col>
+                  </nz-row>
+                  <nz-row *ngIf="ticketCart.length">
+                    <nz-col nzFlex="1" style="margin: 20px 10px;">
+                      <label for="fullName">Full Name</label>
+                      <input nz-input style="margin: 10px 5px" placeholder="Full Name" id='fullName'
+                             [(ngModel)]="fullName"/>
+                      <label for="paymentNumber">Payment Number</label>
+                      <input nz-input style="margin: 10px 5px" placeholder="Payment Number" id='paymentNumber'
+                             [(ngModel)]="paymentNumber"/>
+                      <button nz-button nzType="default"
+                              (click)="orderTickets()">Order now
+                      </button>
+                    </nz-col>
+                  </nz-row>
+
+                </nz-spin>
+              </nz-col>
+
+              <nz-col nzFlex="1">
+                <nz-list nzBordered>
+                  <nz-list-item [ngClass]="isSelectedItem(projection)?'selected-item':''" class="list-item"
+                                *ngFor="let projection of salle.projections"
+                                (click)="onSelectProjection(projection,salle)">
+                    {{projection.seance.heureDebut|slice:0:5}}<span></span>
+                    {{projection.prix}}DH
+                  </nz-list-item>
+                </nz-list>
+              </nz-col>
+            </nz-row>
+          </nz-card>
+          <ng-template #extraTemplate>
+            <a>More Details</a>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </nz-spin>
+</nz-spin>

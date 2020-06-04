@@ -1,0 +1,18 @@
+<nz-layout class="layout">
+  <nz-header>
+    <img class="logo" src="assets/_logo.png" alt="logo" routerLink="/">
+    <ul nz-menu nzTheme="dark" nzMode="horizontal">
+      <li nz-menu-item routerLink="/">Home</li>
+      <li nz-menu-item routerLink="/movies">Movies</li>
+      <li nz-menu-item routerLink="/cinemas">Cinemas</li>
+    </ul>
+  </nz-header>
+  <nz-content>
+    <app-breadcrumb></app-breadcrumb>
+    <div class="inner-content">
+      <router-outlet>
+      </router-outlet>
+    </div>
+  </nz-content>
+  <nz-footer>ANCBest.py ©2020 </nz-footer>
+</nz-layout>
