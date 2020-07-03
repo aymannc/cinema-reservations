@@ -9,9 +9,9 @@ import {NzMessageService} from 'ng-zorro-antd';
 })
 export class CinemasComponent implements OnInit {
 
-  citiesOptions: Array<{ city: string; cinemas: string }> = [];
+  citiesOptions: Array<{ id: number; city: string; cinemas: string }> = [];
   selectedCity = null;
-  isLoading = true;
+  isLoading = false;
   isLoadingSalles = false;
   cinemas = null;
   selectedCinema = null;
@@ -23,6 +23,8 @@ export class CinemasComponent implements OnInit {
   fullName: string;
   paymentNumber: string;
   isLoadingTickets: boolean;
+  isAddCityModalVisible = false;
+  isOkCityModalLoading = false;
 
   constructor(public cinemaService: CinemaService, private message: NzMessageService) {
   }
@@ -33,10 +35,10 @@ export class CinemasComponent implements OnInit {
     this.isLoadingTickets = false;
     console.log(error);
     this.message.error('Error');
-  };
+  }
 
   resetData() {
-    this.isLoading = true;
+    // this.isLoading = true;
     this.isLoadingSalles = false;
     this.cinemas = null;
     this.selectedCinema = null;
@@ -47,27 +49,18 @@ export class CinemasComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cinemaService.getCities().subscribe(result => {
-      // @ts-ignore
-      result._embedded.villes.forEach(v => {
-        this.citiesOptions.push({city: v.name, cinemas: v._links.cinemas});
-      });
-    }, this.errorFunc, () =>
-      this.isLoading = false);
+    this.getCities();
   }
 
   onSelectCity() {
-
     // Todo : Check the reset Data
+    console.log(this.selectedCity);
     this.resetData();
-    this.cinemaService.getCinemas(this.selectedCity.href).subscribe(result => {
-      this.isLoading = false;
-      // @ts-ignore
-      this.cinemas = result._embedded.cinemas;
-    }, this.errorFunc);
+    this.getCinemas();
   }
 
   onSelectCinema() {
+    console.log(this.selectedCinema);
     this.isLoadingSalles = true;
     this.listSalles = null;
     this.cinemaService.getSalles(this.selectedCinema).subscribe(result => {
@@ -103,7 +96,6 @@ export class CinemasComponent implements OnInit {
     return this.selectdSalle && this.selectdSalle.id === salle.id && this.selectedProjection != null;
   }
 
-
   addOrRemoveTicketCart(ticket: any) {
     ticket.selected = !ticket.selected;
     if (ticket.selected) {
@@ -117,7 +109,6 @@ export class CinemasComponent implements OnInit {
     return this.selectedProjection && this.selectedProjection.id === projection.id;
   }
 
-
   getTickets() {
     this.selectedProjection.tickets = [];
     this.isLoadingTickets = true;
@@ -129,11 +120,71 @@ export class CinemasComponent implements OnInit {
   }
 
   orderTickets() {
-    this.cinemaService.orderTickets({nomClient: this.fullName, codePayment: this.paymentNumber, tickets: this.ticketCart})
+    this.cinemaService.orderTickets({
+      nomClient: this.fullName,
+      codePayment: this.paymentNumber,
+      tickets: this.ticketCart
+    })
       .subscribe((result: any[]) => {
           this.message.success('Ordered successfully !');
           this.getTickets();
         }, this.errorFunc
       );
+  }
+
+  getCities() {
+    if (!this.isLoading) {
+      this.isLoading = true;
+      this.cinemaService.getCities().subscribe(result => {
+        this.citiesOptions = [];
+        // @ts-ignore
+        result._embedded.villes.forEach(v => {
+          this.citiesOptions.push({id: v.id, city: v.name, cinemas: v._links.cinemas});
+        });
+      }, this.errorFunc, () =>
+        this.isLoading = false);
+    }
+  }
+
+  getCinemas() {
+    if (this.selectedCity?.cinemas?.href) {
+      this.isLoading = true;
+      this.cinemaService.getCinemas(this.selectedCity.cinemas.href).subscribe(result => {
+        this.isLoading = false;
+        // @ts-ignore
+        this.cinemas = result._embedded.cinemas;
+      }, this.errorFunc);
+    } else {
+      this.message.error('No selected city');
+    }
+
+  }
+
+  showAddCityModal(): void {
+    this.isAddCityModalVisible = true;
+  }
+
+  handleAddCityModalOk(): void {
+    this.isAddCityModalVisible = false;
+    this.getCities();
+  }
+
+  handleAddCityModalCancel(): void {
+    this.isAddCityModalVisible = false;
+    this.getCities();
+  }
+
+  editCity() {
+
+  }
+
+  deleteCity() {
+    if (this.selectedCity) {
+      this.cinemaService.deleteCity(this.selectedCity.id).subscribe(res => {
+        this.selectedCinema = null;
+        this.resetData();
+        this.getCities();
+      }, error => this.errorFunc(error));
+    }
   }
 }

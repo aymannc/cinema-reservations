@@ -1,1 +1,55 @@
-<p>movies works!</p>
+<nz-row *ngIf="movies" nzJustify="end" nzAlign="middle">
+  <nz-col>
+    <label>
+      <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
+        <input type="text" nz-input placeholder="Search for a movie"/>
+      </nz-input-group>
+      <ng-template #suffixIconButton>
+        <button nz-button nzType="primary" nzSearch><i nz-icon nzType="search"></i></button>
+      </ng-template>
+    </label>
+  </nz-col>
+  <nz-col nzOffset="1">
+    <button nz-button nzType="primary" nzSize="large" (click)="goToAddMovie()">Add a movie</button>
+  </nz-col>
+</nz-row>
+<nz-spin [nzSpinning]="isLoading" style="margin-top: 10px">
+  <div *ngIf="movies;else noData">
+    <nz-row nzJustify="space-around" nzAlign="middle" [nzGutter]="[16,16]">
+      <nz-col *ngFor="let movie of movies" nzXl="6" nzLg="8" nzMd="12" nzSm="24">
+        <nz-card style="width:300px;height: 100px" [nzCover]="coverTemplate"
+                 [nzActions]="[actionSetting, actionEdit, actionEllipsis]">
+          <nz-card-meta nzTitle="{{movie.titre}}"
+                        nzDescription="{{movie.description| shortDescription:50}}"></nz-card-meta>
+        </nz-card>
+        <ng-template #coverTemplate>
+          <img alt="example" src="{{movie.photo | pathToUrl}}"/>
+        </ng-template>
+        <ng-template #actionSetting>
+          <i (click)="goToDetails(movie.id)"
+             style="color: #40A9FF">Details</i>
+        </ng-template>
+        <ng-template #actionEdit>
+          <i nz-icon nzType="edit" (click)="editMovie(movie.id)" [nzTheme]="'twotone'" [nzTwotoneColor]="'green'"></i>
+        </ng-template>
+        <ng-template #actionEllipsis>
+          <i nz-icon nzType="delete" (click)="deleteMovie(movie.id)" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"></i>
+        </ng-template>
+      </nz-col>
+    </nz-row>
+    <nz-row nzJustify="center" nzAlign="middle" style="margin-top: 10px">
+      <nz-pagination [nzPageIndex]="pageIndex" [nzTotal]="totalElements" nzShowSizeChanger
+                     [nzPageSize]="pageSize"
+                     (nzPageIndexChange)="getMovies(false)"
+                     (nzPageSizeChange)="getMovies(true)">
+      </nz-pagination>
+    </nz-row>
+  </div>
+  <ng-template #noData>
+    <nz-result *ngIf="!isLoading" nzStatus="info" nzTitle="There is no movies at the moment">
+      <div nz-result-extra>
+        <button nz-button nzType="primary" (click)="goToAddMovie()">Add a movie</button>
+      </div>
+    </nz-result>
+  </ng-template>
+</nz-spin>

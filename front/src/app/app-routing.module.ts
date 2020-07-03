@@ -1,21 +1,31 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {HomeComponent} from './Component/home/home.component';
 import {MoviesComponent} from './Component/movies/movies.component';
 import {CinemasComponent} from './Component/cinemas/cinemas.component';
+import {MovieDetailsComponent} from "./Component/movies/movie-details/movie-details.component";
+import {AddMovieComponent} from "./Component/movies/add-movie/add-movie.component";
+import {CinemaFormComponent} from "./Component/cinemas/cinema-form/cinema-form.component";
 
 
 const routes: Routes = [
   {
-    path: '', component: HomeComponent,
+    path: '', redirectTo: '/cinemas', pathMatch: 'full',
   },
   {
-    path: 'movies', component: MoviesComponent,
-    children: []
+    path: 'movies',
+    children: [
+      {path: '', component: MoviesComponent},
+      {path: 'add', component: AddMovieComponent},
+      {path: 'details/:id', component: MovieDetailsComponent},
+      {path: 'modify/:id', component: AddMovieComponent}
+    ]
   },
   {
-    path: 'cinemas', component: CinemasComponent,
-    children: []
+    path: 'cinemas',
+    children: [
+      {path: '', component: CinemasComponent},
+      {path: 'add', component: CinemaFormComponent},
+    ]
   }
   ,
   {

@@ -2,6 +2,11 @@
   min-height: 100vh;
 }
 
+nz-breadcrumb {
+  margin: 16px 0;
+}
+
+
 .logo {
   width: 120px;
   height: 31px;

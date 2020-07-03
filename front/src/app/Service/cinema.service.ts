@@ -1,5 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
+import {UploadFile} from "ng-zorro-antd";
+import Movie from "../Data/Movie";
+import {FormControl} from "@angular/forms";
+import {City} from "../Data/City";
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +38,62 @@ export class CinemaService {
 
   fetchTickets(tickets: any) {
     return this.http.get(tickets);
+  }
+
+  addFilm(fileList: UploadFile[], data: any) {
+    const formData = new FormData();
+    fileList.forEach((file: any) => {
+      formData.append('file', file);
+    });
+    formData.append('filmData', new Blob([JSON.stringify(data)], {
+      type: 'application/json'
+    }));
+    return this.http.post<Movie>('http://localhost:8080/addFilm', formData);
+  }
+
+  onlyNumbers = (control: FormControl): { [s: string]: boolean } => {
+    if (!control.value) {
+      return {required: true};
+    } else if (isNaN(control.value)) {
+      return {chars: true, error: true};
+    }
+    return {};
+  }
+
+  getFilms(pageSize: number, pageIndex: number) {
+    const requestUrl = this.baseUrl + `films?page=${pageIndex - 1}&size=${pageSize}`;
+    return this.http.get(requestUrl);
+
+  }
+
+  getMovie(id: number) {
+    return this.http.get(this.baseUrl + 'films/' + id);
+  }
+
+  deleteMovie(id: number) {
+    return this.http.delete(this.baseUrl + 'films/' + id);
+  }
+
+  modifyFilm(fileList: UploadFile[], movie: Movie, rawValue: Movie) {
+    const formData = new FormData();
+
+    formData.append('file', null);
+    fileList.forEach((file: any) => {
+      formData.append('file', file);
+    });
+    rawValue.id = movie.id;
+    rawValue.photo = movie.photo;
+    formData.append('filmData', new Blob([JSON.stringify(rawValue)], {
+      type: 'application/json'
+    }));
+    return this.http.post<Movie>(this.baseUrl + 'modifyMovie', formData);
+  }
+
+  addCity(formData: any) {
+    return this.http.post<City>(this.baseUrl + 'villes', formData);
+  }
+
+  deleteCity(id: any) {
+    return this.http.delete(this.baseUrl + 'villes/' + id);
   }
 }

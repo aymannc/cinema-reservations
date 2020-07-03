@@ -1,27 +1,74 @@
+<ng-template #templateCities>
+  <p>Didn't found any cities</p>
+  <button (click)="getCities()" nz-button nzType="primary" [disabled]="isLoading">Refresh</button>
+</ng-template>
+<ng-template #templateCinemas>
+  <p>Didn't found any Cinemas</p>
+  <button (click)="getCinemas()" nz-button nzType="primary" [disabled]="isLoading">Refresh</button>
+</ng-template>
 <nz-spin [nzSpinning]="isLoading">
-  <nz-row nzJustify="end" nzAlign="middle">
-    <nz-col nzSpan="1">
-      <label>City</label>
-    </nz-col>
-    <nz-col nzSpan="4">
-      <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select a city" [(ngModel)]="selectedCity"
-                 [nzAllowClear]="false"
-                 (ngModelChange)="onSelectCity()">
-        <nz-option *ngFor="let city of citiesOptions" [nzLabel]="city.city" [nzValue]="city.cinemas"></nz-option>
-      </nz-select>
+  <nz-row nzJustify="end" style="margin-bottom: 15px;">
+    <nz-col>
+      <button nz-button nzType="primary" (click)="showAddCityModal()">
+        <span>Add a city</span>
+      </button>
+      <nz-modal
+        [(nzVisible)]="isAddCityModalVisible"
+        nzTitle="Add City"
+        (nzOnCancel)="handleAddCityModalCancel()"
+        (nzOnOk)="handleAddCityModalOk()"
+        [nzOkLoading]="isOkCityModalLoading"
+      >
+        <app-add-city></app-add-city>
+      </nz-modal>
     </nz-col>
     <nz-col nzOffset="1">
-      <label style="margin-right: 10px">Cinema</label>
+      <button routerLink="/cinemas/add" nz-button nzType="primary" [disabled]="isLoading">Add a cinema</button>
     </nz-col>
-    <nz-col nzSpan="4">
-      <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select a cinema" [(ngModel)]="selectedCinema"
+  </nz-row>
+  <nz-row nzJustify="start" nzAlign="middle">
+    <nz-col>
+      <label>City</label>
+    </nz-col>
+    <nz-col nzSpan="4" nzOffset="1">
+      <nz-select nzAllowClear nzPlaceHolder="Select a city"
+                 [(ngModel)]="selectedCity"
+                 [nzNotFoundContent]="templateCities"
                  [nzAllowClear]="false"
-                 [disabled]="!cinemas"
+                 (ngModelChange)="onSelectCity()">
+        <nz-option *ngFor="let city of citiesOptions" [nzLabel]="city.city" [nzValue]="city"></nz-option>
+      </nz-select>
+    </nz-col>
+    <nz-col *ngIf="selectedCity" style="margin-left: 10px;">
+      <a style="font-size: large" (click)="editCity()">
+        <i nz-icon [nzType]="'edit'" [nzTheme]="'twotone'"></i>
+      </a>
+      |
+      <a style="font-size: large;color: red" (click)="deleteCity()">
+        <i nz-icon [nzType]="'delete'" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"></i>
+      </a>
+    </nz-col>
+    <nz-col nzOffset="1">
+      <label>Cinema</label>
+    </nz-col>
+    <nz-col nzSpan="4" nzOffset="1">
+      <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select a cinema" [(ngModel)]="selectedCinema"
+                 [nzNotFoundContent]="templateCinemas"
+                 [nzAllowClear]="false"
+                 [disabled]="!selectedCity"
                  (ngModelChange)="onSelectCinema()">
         <nz-option *ngFor="let cinema of cinemas" [nzLabel]="cinema.name" [nzValue]="cinema"></nz-option>
       </nz-select>
     </nz-col>
+    <nz-col *ngIf="selectedCinema" style="margin-left: 10px;">
+      <a style="font-size: large"><i nz-icon [nzType]="'edit'" [nzTheme]="'twotone'"></i></a>
+      |
+      <a style="font-size: large;color: red">
+        <i nz-icon [nzType]="'delete'" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"></i>
+      </a>
+    </nz-col>
   </nz-row>
+
   <nz-spin [nzSpinning]="isLoadingSalles" *ngIf="listSalles">
     <div style="background: #ECECEC;padding:30px; margin-top: 10px">
       <div nz-row [nzGutter]="[8,16]">
@@ -37,13 +84,17 @@
             </nz-card-tab>
             <nz-row *ngIf="cardIndexes[indx]===0" nzAlign="middle" nzJustify="space-around">
               <nz-col nzSpan="10">
-                <img [src]="cinemaService.baseUrl +'image/'+salle.projections[0].film.id"
-                     alt="poster" width="150px">
+                <a target="_blank" href="{{salle.projections[0].film.photo | pathToUrl}}">
+                  <img [src]="salle.projections[0].film.photo | pathToUrl"
+                       alt="poster" width="150px">
+                </a>
+
               </nz-col>
               <nz-col nzSpan="12">
                 <nz-list nzBordered>
                   <nz-list-item>
-                    {{salle.projections[0].film.titre}}
+                    <a routerLink="/movies/details/{{salle.projections[0].film.id}}" style="text-decoration: underline">
+                      {{salle.projections[0].film.titre}}</a>
                   </nz-list-item>
                   <nz-list-item>
                     {{salle.projections[0].film.description | shortDescription:50}}
@@ -100,7 +151,7 @@
             </nz-row>
           </nz-card>
           <ng-template #extraTemplate>
-            <a>More Details</a>
+            <a (click)="showAddCityModal()">Edit</a>
           </ng-template>
         </div>
       </div>

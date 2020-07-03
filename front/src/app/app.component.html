@@ -8,11 +8,12 @@
     </ul>
   </nz-header>
   <nz-content>
-    <app-breadcrumb></app-breadcrumb>
+    <nz-breadcrumb [nzAutoGenerate]="true"></nz-breadcrumb>
+
     <div class="inner-content">
       <router-outlet>
       </router-outlet>
     </div>
   </nz-content>
-  <nz-footer>ANCBest.py ©2020 </nz-footer>
+  <nz-footer>ANCBest.py ©2020</nz-footer>
 </nz-layout>
