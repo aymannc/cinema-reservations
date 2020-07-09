@@ -22,6 +22,7 @@ import { AddMovieComponent } from './Component/movies/add-movie/add-movie.compon
 import { MovieDetailsComponent } from './Component/movies/movie-details/movie-details.component';
 import { AddCityComponent } from './Component/cinemas/add-city/add-city.component';
 import { CinemaFormComponent } from './Component/cinemas/cinema-form/cinema-form.component';
+import { EditRoomComponent } from './Component/cinemas/edit-room/edit-room.component';
 
 registerLocaleData(en);
 
@@ -39,7 +40,8 @@ registerLocaleData(en);
     AddMovieComponent,
     MovieDetailsComponent,
     AddCityComponent,
-    CinemaFormComponent
+    CinemaFormComponent,
+    EditRoomComponent
   ],
   imports: [
     BrowserModule,

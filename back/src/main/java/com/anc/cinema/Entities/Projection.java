@@ -30,3 +30,6 @@ public class Projection {
     @ManyToOne
     private Seance seance;
 }
+
+
+

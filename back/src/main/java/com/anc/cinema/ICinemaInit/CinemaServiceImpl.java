@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -36,6 +37,8 @@ public class CinemaServiceImpl implements ICinemaService {
     @Autowired
     TicketRepository ticketRepository;
 
+    double[] prices = new double[]{30, 50, 60, 70, 90, 100};
+
     @Override
     public void initVilles() {
         Stream.of("Casablanca", "Agadir", "Rabat", "Tanger").forEach(v -> {
@@ -61,27 +64,21 @@ public class CinemaServiceImpl implements ICinemaService {
 
     @Override
     public void initSalles() {
-        cinemaRepository.findAll().forEach(cinema -> {
-            for (int i = 0; i < cinema.getNombreSales(); i++) {
-                Salle salle = new Salle();
-                salle.setName("Salle " + (i + 1));
-                salle.setNombrePlace(15 + (int) (Math.random() * 15));
-                salle.setCinema(cinema);
-                salleRepository.save(salle);
-            }
-        });
+        cinemaRepository.findAll().forEach(this::initSalle);
     }
 
     @Override
     public void initPlaces() {
-        salleRepository.findAll().forEach(salle -> {
-            for (int i = 1; i <= salle.getNombrePlace(); i++) {
-                Place place = new Place();
-                place.setNumero(i);
-                place.setSalle(salle);
-                placeRepository.save(place);
-            }
-        });
+        salleRepository.findAll().forEach(this::initPlace);
+    }
+
+    private void initPlace(Salle salle) {
+        for (int i = 1; i <= salle.getNombrePlace(); i++) {
+            Place place = new Place();
+            place.setNumero(i);
+            place.setSalle(salle);
+            placeRepository.save(place);
+        }
     }
 
     @Override
@@ -131,20 +128,10 @@ public class CinemaServiceImpl implements ICinemaService {
     @Override
     public void initProjections() {
         List<Film> films = filmRepository.findAll();
-        double[] prices = new double[]{30, 50, 60, 70, 90, 100};
         villeRepository.findAll().forEach(ville -> {
             ville.getCinemas().forEach(cinema -> {
                 cinema.getSalles().forEach(salle -> {
-                    int randFilm = new Random().nextInt(films.size());
-                    seanceRepository.findAll().forEach(seance -> {
-                        Projection projection = new Projection();
-                        projection.setDateProjection(new Date());
-                        projection.setFilm(films.get(randFilm));
-                        projection.setPrix(prices[new Random().nextInt(prices.length)]);
-                        projection.setSalle(salle);
-                        projection.setSeance(seance);
-                        projectionRepository.save(projection);
-                    });
+                    initProjection(salle, films);
                 });
             });
         });
@@ -153,15 +140,70 @@ public class CinemaServiceImpl implements ICinemaService {
 
     @Override
     public void initTickets() {
-        projectionRepository.findAll().forEach(projection -> {
-            projection.getSalle().getPlaces().forEach(place -> {
-                Ticket ticket = new Ticket();
-                ticket.setPlace(place);
-                ticket.setProjection(projection);
-                ticket.setPrix(projection.getPrix());
-                ticket.setReserve(false);
-                ticketRepository.save(ticket);
-            });
+        projectionRepository.findAll().forEach(this::initTicket);
+    }
+
+    @Override
+    public void initTicket(Projection projection) {
+        projection.getSalle().getPlaces().forEach(place -> {
+            Ticket ticket = new Ticket();
+            ticket.setPlace(place);
+            ticket.setProjection(projection);
+            ticket.setPrix(projection.getPrix());
+            ticket.setReserve(false);
+            ticketRepository.save(ticket);
         });
+
+    }
+
+    @Override
+    public void randomInitCinemaRooms(Cinema cinema, Boolean init) {
+        if (cinema == null)
+            cinema = cinemaRepository.getOne((long) 1);
+        initSalle(cinema);
+        salleRepository.findByCinema(cinema).forEach(this::initPlace);
+        if (init != null) {
+            List<Film> films = filmRepository.findAll();
+            salleRepository.findByCinema(cinema).forEach(salle -> {
+                List<Projection> projections = this.initProjection(salle, films);
+                projections.forEach(projection -> {
+                    placeRepository.findBySalleId(salle.getId()).forEach(place -> {
+                        Ticket ticket = new Ticket();
+                        ticket.setPlace(place);
+                        ticket.setProjection(projection);
+                        ticket.setPrix(projection.getPrix());
+                        ticket.setReserve(false);
+                        ticketRepository.save(ticket);
+                    });
+                });
+            });
+        }
+
+
+    }
+
+    private List<Projection> initProjection(Salle salle, List<Film> films) {
+        List<Projection> projections = new ArrayList();
+        int randFilm = new Random().nextInt(films.size());
+        seanceRepository.findAll().forEach(seance -> {
+            Projection projection = new Projection();
+            projection.setDateProjection(new Date());
+            projection.setFilm(films.get(randFilm));
+            projection.setPrix(this.prices[new Random().nextInt(prices.length)]);
+            projection.setSalle(salle);
+            projection.setSeance(seance);
+            projections.add(projectionRepository.save(projection));
+        });
+        return projections;
+    }
+
+    private void initSalle(Cinema cinema) {
+        for (int i = 0; i < cinema.getNombreSales(); i++) {
+            Salle salle = new Salle();
+            salle.setName("Salle " + (i + 1));
+            salle.setNombrePlace(15 + (int) (Math.random() * 15));
+            salle.setCinema(cinema);
+            salleRepository.save(salle);
+        }
     }
 }

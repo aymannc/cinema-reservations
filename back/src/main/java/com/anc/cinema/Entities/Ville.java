@@ -12,6 +12,7 @@ import java.util.Collection;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Ville {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

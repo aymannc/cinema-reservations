@@ -14,16 +14,26 @@
       </button>
       <nz-modal
         [(nzVisible)]="isAddCityModalVisible"
-        nzTitle="Add City"
+        nzTitle="{{this.editMode ? 'Update' : 'Add'}} City"
         (nzOnCancel)="handleAddCityModalCancel()"
         (nzOnOk)="handleAddCityModalOk()"
         [nzOkLoading]="isOkCityModalLoading"
       >
-        <app-add-city></app-add-city>
+        <app-add-city [editCity]="this.isEditMode()"></app-add-city>
       </nz-modal>
     </nz-col>
     <nz-col nzOffset="1">
-      <button routerLink="/cinemas/add" nz-button nzType="primary" [disabled]="isLoading">Add a cinema</button>
+      <button (click)="showAddCinemaModal()" nz-button nzType="primary" [disabled]="isLoading">Add a cinema</button>
+      <nz-modal
+        [(nzVisible)]="isAddCinemaModalVisible"
+        nzTitle="{{this.editCinemaMode ? 'Update' : 'Add'}} Cinema"
+        (nzOnCancel)="handleAddCinemaModalOk()"
+        (nzOnOk)="handleAddCinemaModalCancel()"
+        [nzOkLoading]="isOkCityModalLoading"
+      >
+        <app-cinema-form [editCinema]="this.isCinemaEditMode()"
+                         [opened]="this.isAddCinemaModalVisible"></app-cinema-form>
+      </nz-modal>
     </nz-col>
   </nz-row>
   <nz-row nzJustify="start" nzAlign="middle">
@@ -44,7 +54,11 @@
         <i nz-icon [nzType]="'edit'" [nzTheme]="'twotone'"></i>
       </a>
       |
-      <a style="font-size: large;color: red" (click)="deleteCity()">
+      <a style="font-size: large;color: red"
+         nz-popconfirm
+         nzPopconfirmTitle="Are you sure delete this?"
+         nzPopconfirmPlacement="bottom"
+         (nzOnConfirm)="deleteCity()">
         <i nz-icon [nzType]="'delete'" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"></i>
       </a>
     </nz-col>
@@ -61,9 +75,13 @@
       </nz-select>
     </nz-col>
     <nz-col *ngIf="selectedCinema" style="margin-left: 10px;">
-      <a style="font-size: large"><i nz-icon [nzType]="'edit'" [nzTheme]="'twotone'"></i></a>
+      <a style="font-size: large" (click)="editCinema()"><i nz-icon [nzType]="'edit'" [nzTheme]="'twotone'"></i></a>
       |
-      <a style="font-size: large;color: red">
+      <a style="font-size: large;color: red"
+         nz-popconfirm
+         nzPopconfirmTitle="Are you sure delete this?"
+         nzPopconfirmPlacement="bottom"
+         (nzOnConfirm)="deleteCinema()">
         <i nz-icon [nzType]="'delete'" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"></i>
       </a>
     </nz-col>
@@ -72,9 +90,11 @@
   <nz-spin [nzSpinning]="isLoadingSalles" *ngIf="listSalles">
     <div style="background: #ECECEC;padding:30px; margin-top: 10px">
       <div nz-row [nzGutter]="[8,16]">
-        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="12" nzXl="8" *ngFor="let salle of listSalles;let indx=index">
-          <nz-card style="width: 100%;" *ngIf="salle.projections"
-                   [nzTitle]="salle.name + ': '+ salle.projections[0]?.film.titre"
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="12" nzXl="8"
+             *ngFor="let salle of listSalles;let indx=index">
+          <nz-card style="width: 100%;"
+                   *ngIf="salle?.projections?.length;else noProjection"
+                   [nzTitle]="salle.name + ': '+ salle?.projections[0]?.film.titre"
                    [nzExtra]="extraTemplate">
             <nz-card-tab>
               <nz-tabset nzSize="large" [(nzSelectedIndex)]="cardIndexes[indx]">
@@ -84,8 +104,8 @@
             </nz-card-tab>
             <nz-row *ngIf="cardIndexes[indx]===0" nzAlign="middle" nzJustify="space-around">
               <nz-col nzSpan="10">
-                <a target="_blank" href="{{salle.projections[0].film.photo | pathToUrl}}">
-                  <img [src]="salle.projections[0].film.photo | pathToUrl"
+                <a target="_blank" href="{{salle?.projections[0].film.photo | pathToUrl}}">
+                  <img [src]="salle?.projections[0].film.photo | pathToUrl"
                        alt="poster" width="150px">
                 </a>
 
@@ -93,17 +113,18 @@
               <nz-col nzSpan="12">
                 <nz-list nzBordered>
                   <nz-list-item>
-                    <a routerLink="/movies/details/{{salle.projections[0].film.id}}" style="text-decoration: underline">
-                      {{salle.projections[0].film.titre}}</a>
+                    <a routerLink="/movies/details/{{salle?.projections[0].film.id}}"
+                       style="text-decoration: underline">
+                      {{salle?.projections[0].film.titre}}</a>
                   </nz-list-item>
                   <nz-list-item>
-                    {{salle.projections[0].film.description | shortDescription:50}}
+                    {{salle?.projections[0].film.description | shortDescription:50}}
                   </nz-list-item>
                   <nz-list-item>
-                    {{salle.projections[0].film.dure}}min<i nz-icon nzType="clock-circle" nzTheme="outline"></i>
+                    {{salle?.projections[0].film.dure}}min<i nz-icon nzType="clock-circle" nzTheme="outline"></i>
                   </nz-list-item>
                   <nz-list-item>
-                    {{salle.projections[0].film.rating}}
+                    {{salle?.projections[0].film.rating}}
                     <i nz-icon nzType="star" nzTheme="outline" [nzTheme]="'twotone'" [nzTwotoneColor]="'#E2B616'"></i>
                   </nz-list-item>
 
@@ -141,7 +162,7 @@
               <nz-col nzFlex="1">
                 <nz-list nzBordered>
                   <nz-list-item [ngClass]="isSelectedItem(projection)?'selected-item':''" class="list-item"
-                                *ngFor="let projection of salle.projections"
+                                *ngFor="let projection of salle?.projections"
                                 (click)="onSelectProjection(projection,salle)">
                     {{projection.seance.heureDebut|slice:0:5}}<span></span>
                     {{projection.prix}}DH
@@ -150,11 +171,47 @@
               </nz-col>
             </nz-row>
           </nz-card>
+          <ng-template #noProjection>
+            <nz-card *ngIf="!isLoadingSalles"
+              style="width: 100%;"
+              [nzTitle]="salle.name"
+              [nzExtra]="extraTemplate"
+            >
+              <nz-row nzAlign="middle" nzJustify="middle">
+                <nz-col>
+                  <nz-alert
+                    nzType="info"
+                    nzMessage="No projection found"
+                    nzDescription="There is no active projection for the Room."
+                    nzShowIcon
+                  ></nz-alert>
+                </nz-col>
+              </nz-row>
+            </nz-card>
+          </ng-template>
           <ng-template #extraTemplate>
-            <a (click)="showAddCityModal()">Edit</a>
+            <a style="font-size: large" (click)="showAddSalleModal(salle)">
+              <i nz-icon [nzType]="'edit'" [nzTheme]="'twotone'"></i>
+            </a> |
+            <a style="font-size: large;color: red"
+               nz-popconfirm
+               nzPopconfirmTitle="Are you sure delete this?"
+               nzPopconfirmPlacement="bottom"
+               (nzOnConfirm)="deleteRoom(salle)">
+              <i nz-icon [nzType]="'delete'" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"></i>
+            </a>
           </ng-template>
         </div>
       </div>
     </div>
   </nz-spin>
 </nz-spin>
+<nz-modal
+  [(nzVisible)]="isEditRoomModalVisible"
+  nzTitle="{{this.editRoomMode ? 'Update' : 'Add'}} Room"
+  (nzOnCancel)="handleEditRoomModal()"
+  (nzOnOk)="handleEditRoomModal()"
+>
+  <app-edit-room [room]="getSelectedRoom()"
+                 [opened]="this.isEditRoomModalVisible"></app-edit-room>
+</nz-modal>

@@ -1,0 +1,79 @@
+<ng-template #templateMovies>
+  <p>Didn't found any movie</p>
+  <button (click)="getMovies()" nz-button nzType="primary" [disabled]="isLoading">Refresh</button>
+</ng-template>
+<nz-spin [nzSpinning]="isLoading">
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="name" nzRequired>Movie</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please select a movie!">
+        <nz-select nzShowSearch
+                   nzAllowClear
+                   nzPlaceHolder="Select a movie"
+                   formControlName="movie"
+                   [nzNotFoundContent]="templateMovies"
+                   [nzAllowClear]="false">
+          <nz-option *ngFor="let movie of moviesOptions" [nzLabel]="movie.title" [nzValue]="movie.id"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngFor="let control of listOfControl; let i = index">
+      <nz-form-label nzSpan="24" *ngIf="i == 0"
+                     [nzFor]="control.controlInstance">Projections
+      </nz-form-label>
+      <nz-form-control
+        [nzSpan]="18"
+        [nzOffset]="4"
+        nzErrorTip="Please input projection's data or delete this field."
+      >
+        <nz-row nzJustify="center" nzGutter="16" nzAlign="middle"
+                [formGroupName]="control.controlInstance">
+          <nz-col nzFlex="3">
+            <label>Date: </label>
+            <nz-time-picker
+              [nzMinuteStep]="15"
+              formControlName="date"
+              nzFormat="H:mm"></nz-time-picker>
+          </nz-col>
+          <nz-col nzFlex="2">
+            <label>Price: </label>
+            <input
+              class="passenger-input"
+              nz-input
+              type="number"
+              placeholder="Price"
+              formControlName="price"
+            />
+          </nz-col>
+          <nz-col nzFlex="1">
+            <i nz-icon nzType="minus-circle-o" class="dynamic-delete-button" (click)="removeField(control, $event)"></i>
+          </nz-col>
+        </nz-row>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-row nzJustify="center">
+      <nz-col [nzXs]="{ span: 24, offset: 0 }"
+              [nzSm]="{ span: 14, offset: 6 }">
+        <nz-form-item>
+          <nz-form-control>
+            <button nz-button nzType="dashed" class="add-button" (click)="addField($event)">
+              <i nz-icon nzType="plus"></i>
+              Add projection
+            </button>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <nz-row nzJustify="center">
+      <nz-col>
+        <nz-form-item nz-row class="register-area">
+          <nz-form-control>
+            <button nz-button nzType="primary" [disabled]="!validateForm.valid">Update</button>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+  </form>
+</nz-spin>
+

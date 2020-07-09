@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 
+@ToString
 @Entity
 @Data
 @NoArgsConstructor
@@ -22,8 +23,8 @@ public class Cinema implements Serializable {
     private String name;
     private double longitude, latitude, altitude;
     private int nombreSales;
-    @OneToMany(mappedBy = "cinema")
 
+    @OneToMany(mappedBy = "cinema")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Collection<Salle> salles;
     @ManyToOne

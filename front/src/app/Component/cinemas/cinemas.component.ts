@@ -25,6 +25,11 @@ export class CinemasComponent implements OnInit {
   isLoadingTickets: boolean;
   isAddCityModalVisible = false;
   isOkCityModalLoading = false;
+  editMode: boolean;
+  isAddCinemaModalVisible: boolean;
+  editCinemaMode: boolean;
+  editRoomMode: boolean;
+  isEditRoomModalVisible: boolean;
 
   constructor(public cinemaService: CinemaService, private message: NzMessageService) {
   }
@@ -53,22 +58,18 @@ export class CinemasComponent implements OnInit {
   }
 
   onSelectCity() {
-    // Todo : Check the reset Data
-    console.log(this.selectedCity);
     this.resetData();
     this.getCinemas();
   }
 
-  onSelectCinema() {
-    console.log(this.selectedCinema);
-    this.isLoadingSalles = true;
+  getRooms() {
     this.listSalles = null;
     this.cinemaService.getSalles(this.selectedCinema).subscribe(result => {
-
       this.isLoading = false;
       // @ts-ignore
       this.listSalles = result._embedded.salles;
       this.cardIndexes = new Array(this.listSalles.length).fill(0);
+      this.isLoadingSalles = this.listSalles.length !== 0;
       this.listSalles.forEach(salle => {
         this.cinemaService.getProjection(salle).subscribe(projection => {
           // @ts-ignore
@@ -82,6 +83,10 @@ export class CinemasComponent implements OnInit {
         });
       }, this.errorFunc);
     }, this.errorFunc);
+  }
+
+  onSelectCinema() {
+    this.getRooms();
   }
 
   onSelectProjection(projection: any, salle: any) {
@@ -134,6 +139,7 @@ export class CinemasComponent implements OnInit {
 
   getCities() {
     if (!this.isLoading) {
+      this.selectedCity = null;
       this.isLoading = true;
       this.cinemaService.getCities().subscribe(result => {
         this.citiesOptions = [];
@@ -146,7 +152,7 @@ export class CinemasComponent implements OnInit {
     }
   }
 
-  getCinemas() {
+  getCinemas(silence = false) {
     if (this.selectedCity?.cinemas?.href) {
       this.isLoading = true;
       this.cinemaService.getCinemas(this.selectedCity.cinemas.href).subscribe(result => {
@@ -155,36 +161,107 @@ export class CinemasComponent implements OnInit {
         this.cinemas = result._embedded.cinemas;
       }, this.errorFunc);
     } else {
-      this.message.error('No selected city');
+      if (!silence) {
+        this.message.error('No selected city');
+      }
     }
 
+  }
+
+  showAddCinemaModal(): void {
+    this.isAddCinemaModalVisible = true;
   }
 
   showAddCityModal(): void {
     this.isAddCityModalVisible = true;
   }
 
+  showAddSalleModal(salle: any): void {
+    console.log(salle);
+    this.selectdSalle = salle;
+    this.isEditRoomModalVisible = true;
+  }
+
+  handleAddCinemaModalOk(): void {
+    this.isAddCinemaModalVisible = false;
+    this.editCinemaMode = false;
+    this.getCinemas(true);
+  }
+
+  handleAddCinemaModalCancel(): void {
+    this.isAddCinemaModalVisible = false;
+    this.editCinemaMode = false;
+    this.getCinemas(true);
+  }
+
   handleAddCityModalOk(): void {
     this.isAddCityModalVisible = false;
+    this.editMode = false;
     this.getCities();
   }
 
+
+  handleEditRoomModal(): void {
+    this.isEditRoomModalVisible = false;
+    this.editRoomMode = false;
+    this.onSelectCinema();
+  }
+
+
   handleAddCityModalCancel(): void {
     this.isAddCityModalVisible = false;
+    this.editMode = false;
     this.getCities();
   }
 
   editCity() {
+    this.editMode = true;
+    this.isAddCityModalVisible = true;
+  }
 
+  editCinema() {
+    this.editCinemaMode = true;
+    this.isAddCinemaModalVisible = true;
   }
 
   deleteCity() {
     if (this.selectedCity) {
       this.cinemaService.deleteCity(this.selectedCity.id).subscribe(res => {
-        this.selectedCinema = null;
+        this.selectedCity = null;
+        this.message.success('City deleted !');
         this.resetData();
         this.getCities();
       }, error => this.errorFunc(error));
     }
+  }
+
+  isEditMode() {
+    return this.editMode ? this.selectedCity : null;
+  }
+
+  deleteCinema() {
+    if (this.selectedCinema) {
+      this.cinemaService.deleteCinema(this.selectedCinema.id).subscribe(res => {
+        this.selectedCinema = null;
+        this.message.success('Cinema deleted !');
+        this.resetData();
+        this.getCinemas(true);
+      }, error => this.errorFunc(error));
+    }
+  }
+
+  isCinemaEditMode() {
+    return this.editMode ? this.selectedCinema : null;
+  }
+
+  deleteRoom(salle: any) {
+    this.cinemaService.deleteRoom(salle).subscribe(results => {
+      this.message.success('Cinema deleted !');
+      this.getRooms();
+    }, error => this.errorFunc(error));
+  }
+
+  getSelectedRoom() {
+    return this.isEditRoomModalVisible ? this.selectdSalle : null;
   }
 }

@@ -1,5 +1,8 @@
 package com.anc.cinema.ICinemaInit;
 
+import com.anc.cinema.Entities.Cinema;
+import com.anc.cinema.Entities.Projection;
+
 public interface ICinemaService {
     public void initVilles();
 
@@ -18,4 +21,8 @@ public interface ICinemaService {
     public void initProjections();
 
     public void initTickets();
+
+    public void initTicket(Projection projection);
+
+    public void randomInitCinemaRooms(Cinema cinema, Boolean init);
 }

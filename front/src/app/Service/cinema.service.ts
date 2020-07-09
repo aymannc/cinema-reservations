@@ -1,9 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {UploadFile} from "ng-zorro-antd";
-import Movie from "../Data/Movie";
-import {FormControl} from "@angular/forms";
-import {City} from "../Data/City";
+import {UploadFile} from 'ng-zorro-antd';
+import Movie from '../Data/Movie';
+import {FormControl} from '@angular/forms';
+import {City} from '../Data/City';
+import {Cinema} from '../Data/CinemasResponse';
+import {FilmsResponse} from '../Data/FilmsResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -70,6 +72,14 @@ export class CinemaService {
     return this.http.get(this.baseUrl + 'films/' + id);
   }
 
+  getMovies() {
+    return this.http.get<FilmsResponse>(this.baseUrl + 'films/');
+  }
+
+  getCity(id: number) {
+    return this.http.get<City>(this.baseUrl + 'villes/' + id);
+  }
+
   deleteMovie(id: number) {
     return this.http.delete(this.baseUrl + 'films/' + id);
   }
@@ -95,5 +105,31 @@ export class CinemaService {
 
   deleteCity(id: any) {
     return this.http.delete(this.baseUrl + 'villes/' + id);
+  }
+
+  modifyCity(id: number, rawValue: any) {
+    return this.http.patch<City>(this.baseUrl + 'villes/' + id, rawValue);
+  }
+
+  addCinema(rawValue: any) {
+    return this.http.post<boolean>(this.baseUrl + 'addCinema', rawValue);
+  }
+
+  deleteCinema(id: any) {
+    return this.http.delete(this.baseUrl + 'cinemas/' + id);
+  }
+
+  getCinema(id: number) {
+    return this.http.get<Cinema>(this.baseUrl + 'cinemas/' + id);
+  }
+
+  addProjections(data: { movieId: number; projections: { date: any; price: any }[] }) {
+    return this.http.post<boolean>(this.baseUrl + 'updateProjections', data);
+  }
+
+  deleteRoom(room: any) {
+    if (room?.id) {
+      return this.http.delete(this.baseUrl + 'salles/' + room.id);
+    }
   }
 }
