@@ -16,7 +16,7 @@
 <nz-spin [nzSpinning]="isLoading" style="margin-top: 10px">
   <div *ngIf="movies;else noData">
     <nz-row nzJustify="space-around" nzAlign="middle" [nzGutter]="[16,16]">
-      <nz-col *ngFor="let movie of movies" nzXl="6" nzLg="8" nzMd="12" nzSm="24">
+      <nz-col *ngFor="let movie of movies" nzXl="8" nzLg="8" nzMd="12" nzSm="24">
         <nz-card style="width:300px;height: 100px" [nzCover]="coverTemplate"
                  [nzActions]="[actionSetting, actionEdit, actionEllipsis]">
           <nz-card-meta nzTitle="{{movie.titre}}"
