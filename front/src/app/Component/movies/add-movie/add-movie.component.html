@@ -1,0 +1,72 @@
+<nz-spin [nzSpinning]="isLoading">
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item *ngIf="movie?.photo">
+      <nz-form-label [nzSm]="6" [nzXs]="24">Current Image</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzXl]="8">
+        <a href="{{movie.photo | pathToUrl}}" target="_blank">
+          <img src="{{movie.photo | pathToUrl}}" alt="current image" height="300px">
+        </a>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="image" [nzRequired]="!modifyMode">Image</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzXl]="8">
+        <nz-upload
+          nzType="drag"
+          id="image"
+          [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload" [nzLimit]="1" [nzDisabled]="isLoading">
+          <p class="ant-upload-drag-icon">
+            <i nz-icon nzType="inbox"></i>
+          </p>
+          <p class="ant-upload-text">Click or drag file to this area to upload</p>
+        </nz-upload>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="title" nzRequired>Title</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzXl]="8" nzErrorTip="Please input a title!">
+        <input nz-input id="title" formControlName="titre" placeholder="title"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="description" nzRequired>Description</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzXl]="8" nzErrorTip="Please input a description!">
+      <textarea nz-input formControlName="description" id="description"
+                placeholder="description"
+                [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+      ></textarea>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="director" nzRequired>Director</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzXl]="8" nzErrorTip="Please input a director!">
+        <input nz-input id="director" formControlName="realisateur" placeholder="director"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Release Date</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24" nzErrorTip="The input is not valid date!">
+        <nz-date-picker formControlName="dateSortie" style="width: 250px;"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="duration" nzRequired>Duration</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzXl]="8" nzErrorTip="Please input a valid duration!">
+        <input nz-input id="duration" formControlName="dure" type="number"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="rating" nzRequired>Rating</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzXl]="8" nzErrorTip="Please input a valid rating!">
+        <input nz-input id="rating" formControlName="rating" type="number"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-row class="register-area">
+      <nz-form-control [nzSpan]="14" [nzOffset]="6">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid || (!modifyMode && fileList.length===0)">Add
+          movie
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-spin>

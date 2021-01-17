@@ -1,0 +1,43 @@
+<nz-spin [nzSpinning]="isLoading" *ngIf="movie || isLoading;else errorMessage">
+  <div nz-row nzJustify="end" [nzGutter]="16">
+    <div nz-col>
+      <button nz-button nzType="primary" nzSize="large" (click)="modifyMovie()">Modify</button>
+    </div>
+    <div nz-col>
+      <button nz-button nzType="danger" nzSize="large" (click)="deleteMovie()">Delete</button>
+    </div>
+  </div>
+
+  <div nz-row nzJustify='start' nzAlign="top">
+    <div nz-col [nzSpan]="8">
+      <img *ngIf="movie?.photo != null"
+           width="100%"
+           [src]="movie?.photo | pathToUrl"
+           alt="Image poster">
+    </div>
+    <div nz-col [nzSpan]="15" nzOffset="1">
+      <nz-divider nzOrientation="left" nzText="Movie's information"></nz-divider>
+      <nz-descriptions nzLayout="horizontal">
+        <nz-descriptions-item nzSpan="3" nzTitle="Title">{{movie?.titre}}</nz-descriptions-item>
+        <nz-descriptions-item nzSpan="3" nzTitle="Rating">
+          {{movie?.rating}}
+          <i nz-icon nzType="star" nzTheme="outline" [nzTheme]="'twotone'" [nzTwotoneColor]="'#E2B616'"></i>
+        </nz-descriptions-item>
+        <nz-descriptions-item nzSpan="3" nzTitle="Duration">{{movie?.dure}} min</nz-descriptions-item>
+        <nz-descriptions-item nzSpan="3"
+                              nzTitle="Release Date">{{(movie?.dateSortie | date: 'dd/MM/yyyy') || 'Not defined'}}</nz-descriptions-item>
+        <nz-descriptions-item nzSpan="3"
+                              nzTitle="Director">{{movie?.realisateur || 'Not defined'}}</nz-descriptions-item>
+        <nz-descriptions-item nzSpan="3" nzTitle="Description">{{movie?.description}}</nz-descriptions-item>
+      </nz-descriptions>
+    </div>
+  </div>
+</nz-spin>
+<ng-template #errorMessage>
+  <nz-result nzStatus="404" nzTitle="Error"
+             nzSubTitle="Sorry, Didn't found this movie!">
+    <div nz-result-extra>
+      <button nz-button nzType="primary" (click)="navigateToMovies()">Back to movies List</button>
+    </div>
+  </nz-result>
+</ng-template>

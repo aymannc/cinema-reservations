@@ -1,0 +1,36 @@
+<nz-spin [nzSpinning]="isLoading">
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="name" nzRequired>Name</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please input a name!">
+        <input nz-input id="name" formControlName="name" placeholder="name"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="longitude">Longitude</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please input a valid longitude!">
+        <input nz-input id="longitude" formControlName="longitude" type="number"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="latitude">Latitude</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please input a valid latitude!">
+        <input nz-input id="latitude" formControlName="latitude" type="number"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="altitude">Altitude</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please input a valid altitude!">
+        <input nz-input id="altitude" formControlName="altitude" type="number"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-row class="register-area">
+      <nz-form-control [nzSpan]="14" [nzOffset]="6">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid">{{this.editCity ? 'Update' : 'Add'}}
+          city
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-spin>
+
